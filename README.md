@@ -1,5 +1,5 @@
 # PicrewRecipes
-At Picrew (https://picrew.me/), save and loads image maker recipes as a JSON file.
+This chrome extension can save and load image maker recipes as a JSON file at Picrew (https://picrew.me/).
 
 In addition to the menu bar, you can also be operate with context menu or shortcut keys.
 
