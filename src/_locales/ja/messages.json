@@ -1,0 +1,23 @@
+{
+  "name": {
+    "message": "PicrewRecipes"
+  },
+  "description": {
+    "message": "Picrew (https://picrew.me/) で画像メーカーのレシピをJSONファイルとしてセーブ・ロードできます。"
+  },
+  "invalid_file_format": {
+    "message": "無効なファイル形式"
+  },
+  "missing_id": {
+    "message": "入力データにImageMakerIDが存在しません。読み込みを続行しますか?"
+  },
+  "wrong_id": {
+    "message": "ImageMakerIDが異なります。読み込みを続行しますか?"
+  },
+  "reset_confirm": {
+    "message": "編集状態をリセットしますか?"
+  },
+  "local_data_broken": {
+    "message": "ローカルデータが破損している可能性があります。リセットしますか?"
+  }
+}
