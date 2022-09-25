@@ -6,8 +6,7 @@
   "background": {
     "service_worker": "/js/background.js"
   },
-  "permissions": ["activeTab", "contextMenus"],
-  "host_permissions": ["https://picrew.me/*"],
+  "permissions": ["contextMenus"],
   "content_scripts": [
     {
       "matches": ["https://picrew.me/image_maker/*"],
