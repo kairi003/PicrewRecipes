@@ -9,4 +9,4 @@ Recipe files can also be opened by drag-and-drop.
 - Save recipes with overwrite
 - Save recipes as other names
 - Reset state
-- Froce PC View mode (toggle at context mune)
+- Force PC View mode (toggle at context mune)
