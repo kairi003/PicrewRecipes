@@ -3,25 +3,29 @@ chrome.runtime.onInstalled.addListener(() => {
     type: "normal",
     id: "open",
     title: "Open (Ctrl+O)",
-    documentUrlPatterns: ["https://picrew.me/image_maker/*"]
+    contexts: ["all"],
+    documentUrlPatterns: ["https://picrew.me/*image_maker/*", "https://picrew.me/", "https://picrew.me/search*", "https://picrew.me/discovery*"]
   });
   chrome.contextMenus.create({
     type: "normal",
     id: "save",
     title: "Save (Ctrl+S)",
-    documentUrlPatterns: ["https://picrew.me/image_maker/*"]
+    contexts: ["all"],
+    documentUrlPatterns: ["https://picrew.me/*image_maker/*"]
   });
   chrome.contextMenus.create({
     type: "normal",
     id: "save_as",
     title: "SaveAs (Shift+Ctrl+S)",
-    documentUrlPatterns: ["https://picrew.me/image_maker/*"]
+    contexts: ["all"],
+    documentUrlPatterns: ["https://picrew.me/*image_maker/*"]
   });
   chrome.contextMenus.create({
     type: "normal",
     id: "reset",
     title: "Reset (Ctrl+R)",
-    documentUrlPatterns: ["https://picrew.me/image_maker/*"]
+    contexts: ["all"],
+    documentUrlPatterns: ["https://picrew.me/*image_maker/*", "https://picrew.me/", "https://picrew.me/search*", "https://picrew.me/discovery*"]
   });
 });
 

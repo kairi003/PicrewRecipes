@@ -8,16 +8,28 @@
   "invalid_file_format": {
     "message": "Invalid file format"
   },
-  "missing_id": {
-    "message": "Missing ImageMakerID on the input data.  Continue to load?"
+  "miss_id": {
+    "message": "Missing ImageMakerID on the input data."
   },
-  "wrong_id": {
-    "message": "ImageMakerID is different. Continue to load?"
+  "diff_id": {
+    "message": "ImageMakerID is different."
+  },
+  "continue_load_confirm": {
+    "message": "Continue to load?"
   },
   "reset_confirm": {
     "message": "Reset the edit state?"
   },
   "local_data_broken": {
-    "message": "Local data may be broken. Reset it?"
+    "message": "Local data may be broken."
+  },
+  "jump_page": {
+    "message": "Open at $1?",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "/image_maker/000/"
+      }
+    }
   }
 }

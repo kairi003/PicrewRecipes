@@ -1,16 +1,17 @@
-window.addEventListener('message', event => {
-  if (event.source !== window || event.origin !== window.origin) return;
-  if (event.data.type === 'FROM_CONTENT') {
-    switch (event.data.action) {
-      case 'GET_STATE':
-        const tid = setInterval(()=>{
-          try {
-            const data = (window?.__NUXT__?.state) ?? {};
-            window.postMessage({ type: 'FROM_EMBED', action: 'GET_STATE', data }, window.origin);
-            clearInterval(tid);
-          } catch {}
-        }, 10);
-        break;
+{
+  const mid = window?.__NUXT__?.state?.imageMakerId ?? null;
+  window.postMessage({ type: 'FROM_EMBED', action: 'GET_ID', data: mid }, window.origin);
+  
+  const st = window.localStorage;
+  const _setItem = st.setItem.bind(st);
+  st.setItem = (function (key, value) {
+    const oldValue = st.getItem(key) ?? null;
+    const result = _setItem.apply(null, [key, value]);
+    const newValue = st.getItem(key);
+    if (key === 'picrew.local.data.'+mid && oldValue !== newValue) {
+      const data = {key, oldValue, newValue};
+      window.postMessage({ type: 'FROM_EMBED', action: 'UPDATE_STORAGE', data}, window.origin);
     }
-  }
-}, false);
+    return result;
+  }).bind(st);
+}
