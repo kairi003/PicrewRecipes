@@ -209,6 +209,7 @@ const setDropEvent = () => {
 
 const setContextMenuListener = () => {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log(message);
     switch (message) {
       case 'open':
         openFile();
@@ -221,6 +222,9 @@ const setContextMenuListener = () => {
         break;
       case 'reset':
         reset();
+        break;
+      case 'force_pc_view':
+        location.reload();
         break;
     }
   });
@@ -267,6 +271,9 @@ const insertMenuBar = async () => {
 
 
 {
+  chrome.runtime.sendMessage('force_pc_view_enabled',
+    response => document.body.classList.toggle('view_pc', response));
+
   waitForSelector('#__layout .Error-Title').then(t =>
     (t.textContent.trim() === '500')
     && confirm(chrome.i18n.getMessage('local_data_broken'))

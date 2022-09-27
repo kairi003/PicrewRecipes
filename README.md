@@ -8,3 +8,4 @@ In addition to the menu bar, you can also be operate with context menu, shortcut
 - Save recipes with overwrite
 - Save recipes as other names
 - Reset state
+- Froce PC View mode (toggle at context mune)
