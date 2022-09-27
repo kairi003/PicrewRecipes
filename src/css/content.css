@@ -3,10 +3,13 @@
   align-items: center;
   padding: 2px;
   font-size: 10pt;
-  font-weight: bold;
   text-align: center; 
   background-color: #fff;
   border-bottom: solid #ddd 1px;
+}
+
+.prl-menu-item {
+  font-weight: bold;
 }
 
 .prl-button {
@@ -14,7 +17,7 @@
   cursor: pointer;
   border-radius: 5px;
   transition: all ease-in-out 0.15s;
-  color: #555;
+  color: #444;
 }
 
 .prl-button:focus-visible, .prl-button:hover {
@@ -25,6 +28,11 @@
   background-color: #bbb;
 }
 
+.prl-button:disabled {
+  background-color: #fff;
+  color: #bbb;
+}
+
 .prl-recipie-name {
   flex: 1;
   margin: 0 4px;
@@ -32,6 +40,10 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   color: #e67;
+}
+
+.prl-recipie-name.unsaved:not(:empty)::before {
+  content: "*";
 }
 
 body::before {

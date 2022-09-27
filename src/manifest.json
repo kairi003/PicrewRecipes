@@ -1,7 +1,7 @@
 {
   "name": "__MSG_Name__",
   "description": "__MSG_Description__",
-  "version": "1.0",
+  "version": "2.0",
   "manifest_version": 3,
   "background": {
     "service_worker": "/js/background.js"
@@ -9,10 +9,11 @@
   "permissions": ["contextMenus"],
   "content_scripts": [
     {
-      "matches": ["https://picrew.me/image_maker/*"],
+      "matches": ["https://picrew.me/*"],
+      "exclude_matches": ["https://picrew.me/creator/*"],
       "run_at":"document_end",
-      "js": ["js/shortcut.js", "js/idb-keyval.min.js","js/content.js"],
-      "css": ["css/style.css"]
+      "js": ["js/shortcut.js", "js/content.js"],
+      "css": ["css/content.css"]
     }
   ],
   "web_accessible_resources": [{
