@@ -57,6 +57,7 @@ const Recipe = class {
     if (state) this.push(state);
     this.saveIndex = this.backQueue.length;
     this.updateName();
+    this.historyStateUpdate();
     return this;
   }
 
@@ -77,6 +78,7 @@ const Recipe = class {
     this.forwardQueue = [];
     if (this.saveIndex > this.backQueue.length) this.saveIndex = 0;
     this.updateName();
+    this.historyStateUpdate();
     return this;
   }
 
@@ -84,6 +86,7 @@ const Recipe = class {
     if (this.backQueue.length <= 1) return;
     this.forwardQueue.push(this.backQueue.pop());
     this.updateName();
+    this.historyStateUpdate();
     return this;
   }
 
@@ -91,11 +94,17 @@ const Recipe = class {
     if (this.forwardQueue.length == 0) return;
     this.backQueue.push(this.forwardQueue.pop());
     this.updateName();
+    this.historyStateUpdate();
     return this;
   }
 
   isSaved() {
     return this.saveIndex == this.backQueue.length;
+  }
+
+  historyStateUpdate() {
+    const state = Object.assign(history.state ?? {}, {recipe: this});
+    history.replaceState(state, '');
   }
 }
 
@@ -183,13 +192,7 @@ const reset = (force = false) => {
   const mid = window.mid;
   if (mid) localStorage.removeItem('picrew.local.data.' + mid);
   history.replaceState(null, '');
-  window.removeEventListener('beforeunload', historyStateUpdate);
   location.reload();
-}
-
-const historyStateUpdate = e => {
-  const state = Object.assign(history.state ?? {}, {recipe: window.recipe});
-  history.replaceState(state, '');
 }
 
 const setDropEvent = () => {
@@ -250,8 +253,6 @@ const insertMenuBar = async () => {
   menubar.querySelector('#prlSave').addEventListener('click', e => saveFile());
   menubar.querySelector('#prlSaveAs').addEventListener('click', e => saveFile(true));
   menubar.querySelector('#prlReset').addEventListener('click', e => reset());
-
-  window.addEventListener('beforeunload', historyStateUpdate);
 
   const mid = window.mid = await getId.catch(e=>null);
   if (!mid) return;
