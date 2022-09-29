@@ -19,7 +19,7 @@ const getId = new Promise((resolve, reject) => {
   if (!location.pathname.match(/^\/(?:secret_)?image_maker\/\w+\/?$/)) return reject(new Error());
   const listener = event => {
     if (event.source !== window || event.origin !== window.origin) return;
-    const { type, action, data } = Object.create(event.data ?? null);
+    const { type, action, data } = event.data ?? {};
     if (type === 'FROM_EMBED' && action === 'GET_ID' && data) {
       event.stopPropagation();
       window.removeEventListener('click', listener);
@@ -260,7 +260,7 @@ const insertMenuBar = async () => {
   recipe.push(localStorage['picrew.local.data.' + mid]);
   window.addEventListener('message', event => {
     if (event.source !== window || event.origin !== window.origin) return;
-    const { type, action, data: { newValue } } = Object.create(event.data ?? null);
+    const { type, action, data: {newValue}={} } = event.data ?? {};
     if (type === 'FROM_EMBED' && action === 'UPDATE_STORAGE' && newValue) {
       event.stopPropagation();
       recipe.push(localStorage['picrew.local.data.' + mid]);
