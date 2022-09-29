@@ -206,6 +206,7 @@ const setDropEvent = () => {
 
   window.addEventListener('drop', event => {
     event.preventDefault();
+    event.stopPropagation();
     openFile(event);
   });
 }
