@@ -37,18 +37,19 @@ const Recipe = class {
   forwardQueue;
   saveIndex;
 
-  constructor(fileHandle=null, backQueue=[], forwardQueue=[], saveIndex=0) {
+  constructor(fileHandle=null, backQueue=[], forwardQueue=[], saveIndex=0, replaceFlag=false) {
     this.fileHandle = fileHandle;
     this.backQueue = backQueue;
     this.forwardQueue = forwardQueue;
     this.saveIndex = saveIndex;
-    this.updateName();
+    this.replaceFlag = replaceFlag;
+    this.updateWindow();
   }
 
   static fromHistoryState(historyState) {
     const _recipe = historyState?.recipe ?? {};
     return new Recipe(_recipe?.fileHandle, _recipe?.backQueue,
-      _recipe?.forwardQueue, _recipe?.saveIndex);
+      _recipe?.forwardQueue, _recipe?.saveIndex, _recipe?.replaceFlag);
   }
 
   savefileHandle(handle, state) {
@@ -56,16 +57,27 @@ const Recipe = class {
     if (!this.fileHandle) return;
     if (state) this.push(state);
     this.saveIndex = this.backQueue.length;
-    this.updateName();
-    this.historyStateUpdate();
+    this.updateWindow();
     return this;
+  }
+
+  updateWindow() {
+    this.updateName();
+    this.updateButton();
+    this.updateHistoryStatus();
   }
 
   updateName() {
     const recipeName = document.querySelector('#recipeName');
     recipeName.textContent = this.fileHandle?.name ?? '';
     recipeName.classList.toggle('unsaved', !this.isSaved());
-    return this;
+  }
+
+  updateButton() {
+    const backButton = document.querySelector('#prlBack');
+    const forwardButton = document.querySelector('#prlForward');
+    backButton.disabled = this.backQueue.length < 2;
+    forwardButton.disabled = this.forwardQueue.length < 1;
   }
 
   get state() {
@@ -73,28 +85,45 @@ const Recipe = class {
   }
 
   push(state) {
-    if (this.backQueue[this.backQueue.length - 1] == state) return;
-    this.backQueue.push(state);
-    this.forwardQueue = [];
+    if (this.backQueue[this.backQueue.length - 1] == state) {
+      this.replaceFlag = false;
+      return;
+    }
+    if (this.replaceFlag) {
+      this.backQueue.pop();
+      this.backQueue.push(state);
+      if (this.saveIndex == this.backQueue.length) this.saveIndex = 0;
+    } else {
+      this.backQueue.push(state);
+      this.forwardQueue = [];
+    }
+    this.replaceFlag = false;
     if (this.saveIndex > this.backQueue.length) this.saveIndex = 0;
-    this.updateName();
-    this.historyStateUpdate();
+    this.updateWindow();
     return this;
   }
 
-  back() {
+  back(n=1) {
     if (this.backQueue.length <= 1) return;
     this.forwardQueue.push(this.backQueue.pop());
-    this.updateName();
-    this.historyStateUpdate();
+    const mid = window.mid;
+    if (!mid) return;
+    localStorage['picrew.local.data.'+mid] = this.state;
+    this.replaceFlag = true;
+    this.updateWindow();
+    location.reload();
     return this;
   }
 
-  forward() {
+  forward(n=1) {
     if (this.forwardQueue.length == 0) return;
     this.backQueue.push(this.forwardQueue.pop());
-    this.updateName();
-    this.historyStateUpdate();
+    const mid = window.mid;
+    if (!mid) return;
+    localStorage['picrew.local.data.'+mid] = this.state;
+    this.replaceFlag = true;
+    this.updateWindow();
+    location.reload();
     return this;
   }
 
@@ -102,7 +131,7 @@ const Recipe = class {
     return this.saveIndex == this.backQueue.length;
   }
 
-  historyStateUpdate() {
+  updateHistoryStatus() {
     const state = Object.assign(history.state ?? {}, {recipe: this});
     history.replaceState(state, '');
   }
@@ -145,13 +174,13 @@ const openFile = async (event) => {
   const confirmJump = () => confirm(i18n('jump_page', [dpath]));
   const confirmDiffLoad = () => confirm(i18n('diff_id') + '\n' + i18n('continue_load_confirm'));
   const confirmMissLoad = () => confirm(i18n('miss_id') + '\n' + i18n('continue_load_confirm'));
+  // fileopen-flowchart.svg (https://github.com/kairi003/PicrewRecipes)
   if (mid == did) {
     if (!mid) return alert(new Error(i18n('miss_id')));
-  } else {
-    if (did && (!mid || confirmJump())) history.pushState(history.state, '', dpath);
-    else if (!mid || did && !confirmDiffLoad()) return;
-    if (mid && !did && !confirmMissLoad()) return;
-  }
+  } else if (did) {
+    if (!mid || confirmJump()) history.pushState(history.state, '', dpath);
+    else if (!confirmDiffLoad()) return;
+  } else if (!confirmMissLoad()) return;
   const state = JSON.stringify(sanitizeData(data));
   window.recipe = new Recipe().savefileHandle(fh, state);
   const storageKey = 'picrew.local.data.' + ((location.pathname == dpath) ? did : mid);
@@ -213,7 +242,6 @@ const setDropEvent = () => {
 
 const setContextMenuListener = () => {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log(message);
     switch (message) {
       case 'open':
         openFile();
@@ -223,6 +251,12 @@ const setContextMenuListener = () => {
         break;
       case 'save_as':
         saveFile(true);
+        break;
+      case 'back':
+        window?.recipe?.back(1);
+        break;
+      case 'forward':
+        window?.recipe?.forward(1);
         break;
       case 'reset':
         reset();
@@ -238,22 +272,28 @@ const setShortCut = () => {
   shortcut.add('Ctrl+O', openFile);
   shortcut.add('Ctrl+S', e => saveFile());
   shortcut.add('Shift+Ctrl+S', e => saveFile(true));
+  shortcut.add('Ctrl+Z', e => window?.recipe?.back(1));
+  shortcut.add('Ctrl+Y', e => window?.recipe?.forward(1));
   shortcut.add('Ctrl+R', reset);
 }
 
 const insertMenuBar = async () => {
   document.body.insertAdjacentHTML('afterbegin', `<div class="prl-menu-bar" id="prlMenuBar">
-    <button id="prlOpen"   class="prl-menu-item prl-button" title="Ctrl+O">Open</button>
-    <button id="prlSave"   class="prl-menu-item prl-button" disabled title="Ctrl+S">Save</button>
-    <button id="prlSaveAs" class="prl-menu-item prl-button" disabled title="Shift+Ctrl+S">SaveAs</button>
-    <button id="prlReset"  class="prl-menu-item prl-button" title="Ctrl+R">Reset</button>
-    <span id="recipeName"  class="prl-menu-item prl-recipie-name"></span>
+    <button id="prlOpen"    class="prl-menu-item prl-button" title="Ctrl+O">Open</button>
+    <button id="prlSave"    class="prl-menu-item prl-button" disabled title="Ctrl+S">Save</button>
+    <button id="prlSaveAs"  class="prl-menu-item prl-button" disabled title="Shift+Ctrl+S">SaveAs</button>
+    <button id="prlReset"   class="prl-menu-item prl-button" title="Ctrl+R">Reset</button>
+    <button id="prlBack"    class="prl-menu-item prl-button prl-bf" disabled title="Ctrl+Z">Back</button>
+    <button id="prlForward" class="prl-menu-item prl-button prl-bf" disabled title="Ctrl+Y">Forward</button>
+    <span id="recipeName"   class="prl-menu-item prl-recipie-name"></span>
   </div>`);
   const menubar = document.querySelector('#prlMenuBar');
   menubar.querySelector('#prlOpen').addEventListener('click', e => openFile(e));
   menubar.querySelector('#prlSave').addEventListener('click', e => saveFile());
   menubar.querySelector('#prlSaveAs').addEventListener('click', e => saveFile(true));
   menubar.querySelector('#prlReset').addEventListener('click', e => reset());
+  menubar.querySelector('#prlBack').addEventListener('click', e => window?.recipe?.back(1));
+  menubar.querySelector('#prlForward').addEventListener('click', e => window?.recipe?.forward(1));
 
   const mid = window.mid = await getId.catch(e=>null);
   if (!mid) return;
@@ -268,7 +308,7 @@ const insertMenuBar = async () => {
       recipe.push(localStorage['picrew.local.data.' + mid]);
     }
   });
-  menubar.querySelectorAll('.prl-button:disabled').forEach(item => item.disabled = false);
+  menubar.querySelectorAll('.prl-button:disabled:not(.prl-bf)').forEach(item => item.disabled = false);
 }
 
 
