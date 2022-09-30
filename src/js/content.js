@@ -145,13 +145,13 @@ const openFile = async (event) => {
   const confirmJump = () => confirm(i18n('jump_page', [dpath]));
   const confirmDiffLoad = () => confirm(i18n('diff_id') + '\n' + i18n('continue_load_confirm'));
   const confirmMissLoad = () => confirm(i18n('miss_id') + '\n' + i18n('continue_load_confirm'));
+  // fileopen-flowchart.svg (https://github.com/kairi003/PicrewRecipes)
   if (mid == did) {
     if (!mid) return alert(new Error(i18n('miss_id')));
-  } else {
-    if (did && (!mid || confirmJump())) history.pushState(history.state, '', dpath);
-    else if (!mid || did && !confirmDiffLoad()) return;
-    if (mid && !did && !confirmMissLoad()) return;
-  }
+  } else if (did) {
+    if (!mid || confirmJump()) history.pushState(history.state, '', dpath);
+    else if (!confirmDiffLoad()) return;
+  } else if (!confirmMissLoad()) return;
   const state = JSON.stringify(sanitizeData(data));
   window.recipe = new Recipe().savefileHandle(fh, state);
   const storageKey = 'picrew.local.data.' + ((location.pathname == dpath) ? did : mid);
