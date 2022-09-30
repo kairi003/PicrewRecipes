@@ -1,7 +1,7 @@
 {
   "name": "__MSG_Name__",
   "description": "__MSG_Description__",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "manifest_version": 3,
   "background": {
     "service_worker": "/js/background.js"

@@ -322,7 +322,7 @@ const insertMenuBar = async () => {
 
   waitForSelector('#__layout .Error-Title').then(t =>
     (t.textContent.trim() === '500')
-    && confirm(chrome.i18n.getMessage('local_data_broken'))
+    && confirm(chrome.i18n.getMessage('local_data_broken') + '\n' + chrome.i18n.getMessage('reset_confirm'))
     && reset(true));
 
   insertMenuBar();
