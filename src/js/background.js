@@ -24,6 +24,20 @@ chrome.runtime.onInstalled.addListener(() => {
   });
   chrome.contextMenus.create({
     type: "normal",
+    id: "back",
+    title: "Back (Ctrl+Z)",
+    contexts: ["all"],
+    documentUrlPatterns: ["https://picrew.me/*image_maker/*"]
+  });
+  chrome.contextMenus.create({
+    type: "normal",
+    id: "forward",
+    title: "Forward (Ctrl+Y)",
+    contexts: ["all"],
+    documentUrlPatterns: ["https://picrew.me/*image_maker/*"]
+  });
+  chrome.contextMenus.create({
+    type: "normal",
     id: "reset",
     title: "Reset (Ctrl+R)",
     contexts: ["all"],

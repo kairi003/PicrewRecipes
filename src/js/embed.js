@@ -1,7 +1,9 @@
-{
-  const mid = window?.__NUXT__?.state?.imageMakerId ?? null;
-  window.postMessage({ type: 'FROM_EMBED', action: 'GET_ID', data: mid }, window.origin);
-  
+(()=>{
+  const iminfo = JSON.parse(JSON.stringify(window?.__NUXT__?.state?.imageMakerInfo ?? null));
+  window.postMessage({ type: 'FROM_EMBED', action: 'GET_INFO', data: iminfo }, window.origin);
+
+  const mid = iminfo.id;
+  if (!mid) return;
   const st = window.localStorage;
   const _setItem = st.setItem.bind(st);
   st.setItem = (function (key, value) {
@@ -14,4 +16,4 @@
     }
     return result;
   }).bind(st);
-}
+})();
