@@ -31,7 +31,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
   chrome.contextMenus.create({
     type: "normal",
-    id: "foward",
+    id: "forward",
     title: "Forward (Ctrl+Y)",
     contexts: ["all"],
     documentUrlPatterns: ["https://picrew.me/*image_maker/*"]
