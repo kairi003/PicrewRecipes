@@ -15,12 +15,12 @@ const waitForSelector = query => new Promise((resolve, reject) => {
   observer.observe(document.body, { childList: true, subtree: true });
 });
 
-const getId = new Promise((resolve, reject) => {
+const getInfo = new Promise((resolve, reject) => {
   if (!location.pathname.match(/^\/(?:secret_)?image_maker\/\w+\/?$/)) return reject(new Error());
   const listener = event => {
     if (event.source !== window || event.origin !== window.origin) return;
     const { type, action, data } = event.data ?? {};
-    if (type === 'FROM_EMBED' && action === 'GET_ID' && data) {
+    if (type === 'FROM_EMBED' && action === 'GET_INFO' && data) {
       event.stopPropagation();
       window.removeEventListener('click', listener);
       resolve(data);
@@ -69,8 +69,11 @@ const Recipe = class {
 
   updateName() {
     const recipeName = document.querySelector('#recipeName');
-    recipeName.textContent = this.fileHandle?.name ?? '';
+    const name = this.fileHandle?.name ?? '';
+    recipeName.textContent = name;
     recipeName.classList.toggle('unsaved', !this.isSaved());
+    const title = window.iminfo?.title ?? '';
+    document.title = name+(name&&'｜')+title+'｜Picrew';
   }
 
   updateButton() {
@@ -206,8 +209,7 @@ const saveFile = async (saveAs = false) => {
     const state = recipe.state;
     const data = JSON.parse(state);
     data.imageMakerId = mid;
-    const sid = location.pathname.match(/^\/secret_image_maker\/(\w+)/)?.[1];
-    if (sid) data.secretId = sid;
+    data.secretId = window.iminfo?.secret_key ?? null;
     await wt.write(JSON.stringify(data));
     await wt.close();
     recipe.savefileHandle(fh, state);
@@ -295,7 +297,9 @@ const insertMenuBar = async () => {
   menubar.querySelector('#prlBack').addEventListener('click', e => window?.recipe?.back(1));
   menubar.querySelector('#prlForward').addEventListener('click', e => window?.recipe?.forward(1));
 
-  const mid = window.mid = await getId.catch(e=>null);
+  const iminfo = window.iminfo = await getInfo.catch(e=>null);
+  if (!iminfo) return;
+  const mid = window.mid = iminfo?.id;
   if (!mid) return;
 
   const recipe = window.recipe = Recipe.fromHistoryState(history.state);
