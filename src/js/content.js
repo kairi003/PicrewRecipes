@@ -72,8 +72,7 @@ const Recipe = class {
     const name = this.fileHandle?.name ?? '';
     recipeName.textContent = name;
     recipeName.classList.toggle('unsaved', !this.isSaved());
-    const title = window.iminfo?.title ?? '';
-    document.title = name+(name&&'｜')+title+'｜Picrew';
+    document.title = [name, window.iminfo?.title, 'Picrew'].filter(x=>x).join('｜');
   }
 
   updateButton() {
