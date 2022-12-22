@@ -170,12 +170,16 @@ const openFile = async (event) => {
   if (data instanceof Error) return alert(new Error(chrome.i18n.getMessage('invalid_file_format')));
 
   const mid = window.mid;
-  const did = data.imageMakerId;
-  const dpath = (data.secretId) ? `/secret_image_maker/${data.secretId}` : `/image_maker/${did}`;
+  const dinfo = data._imageMakerInfo;
+  const dtitle = dinfo?.title ?? '';
+  // Compatibility processing for 2.x or earlier
+  const did = dinfo?.id ?? data.imageMakerId;
+  const dpath = dinfo?._imageMakerPath ?? (data.secretId) ? `/secret_image_maker/${data.secretId}` : `/image_maker/${did}`;
   const i18n = chrome.i18n.getMessage;
-  const confirmJump = () => confirm(i18n('jump_page', [dpath]));
+  const confirmJump = () => confirm(i18n('jump_page', [dtitle + ' ' + dpath]));
   const confirmDiffLoad = () => confirm(i18n('diff_id') + '\n' + i18n('continue_load_confirm'));
   const confirmMissLoad = () => confirm(i18n('miss_id') + '\n' + i18n('continue_load_confirm'));
+  
   // fileopen-flowchart.svg (https://github.com/kairi003/PicrewRecipes)
   if (mid == did) {
     if (!mid) return alert(new Error(i18n('miss_id')));
@@ -183,6 +187,7 @@ const openFile = async (event) => {
     if (!mid || confirmJump()) history.pushState(history.state, '', dpath);
     else if (!confirmDiffLoad()) return;
   } else if (!confirmMissLoad()) return;
+
   const state = JSON.stringify(sanitizeData(data));
   window.recipe = new Recipe().savefileHandle(fh, state);
   const storageKey = 'picrew.local.data.' + ((location.pathname == dpath) ? did : mid);
@@ -207,8 +212,9 @@ const saveFile = async (saveAs = false) => {
     const wt = await fh.createWritable();
     const state = recipe.state;
     const data = JSON.parse(state);
-    data.imageMakerId = mid;
-    data.secretId = window.iminfo?.secret_key ?? null;
+    data._imageMakerInfo = window.iminfo;
+    data._imageMakerPath = window.location.pathname;
+    data._picrewRecipesVersion = chrome.runtime.getManifest().version;
     await wt.write(JSON.stringify(data));
     await wt.close();
     recipe.savefileHandle(fh, state);
