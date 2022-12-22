@@ -212,8 +212,6 @@ const saveFile = async (saveAs = false) => {
     const wt = await fh.createWritable();
     const state = recipe.state;
     const data = JSON.parse(state);
-    // data.imageMakerId = mid;
-    // data.secretId = window.iminfo?.secret_key ?? null;
     data._imageMakerInfo = window.iminfo;
     data._imageMakerPath = window.location.pathname;
     data._picrewRecipesVersion = chrome.runtime.getManifest().version;
