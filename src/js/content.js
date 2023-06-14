@@ -15,8 +15,13 @@ const waitForSelector = query => new Promise((resolve, reject) => {
   observer.observe(document.body, { childList: true, subtree: true });
 });
 
+const validateURL = url => {
+  const pathname = new URL(url).pathname;
+  if (!pathname.match(/^\/(?:[a-z-]+\/)?(?:secret_)?image_maker\/\w+\/?$/)) throw new Error('Invalid URL');
+}
+
 const getInfo = new Promise((resolve, reject) => {
-  if (!location.pathname.match(/^\/(?:secret_)?image_maker\/\w+\/?$/)) return reject(new Error());
+  validateURL(window.location.href);
   const listener = event => {
     if (event.source !== window || event.origin !== window.origin) return;
     const { type, action, data } = event.data ?? {};
@@ -302,7 +307,7 @@ const insertMenuBar = async () => {
   menubar.querySelector('#prlBack').addEventListener('click', e => window?.recipe?.back(1));
   menubar.querySelector('#prlForward').addEventListener('click', e => window?.recipe?.forward(1));
 
-  const iminfo = window.iminfo = await getInfo.catch(e=>null);
+  const iminfo = window.iminfo = await getInfo;
   if (!iminfo) return;
   const mid = window.mid = iminfo?.id;
   if (!mid) return;
