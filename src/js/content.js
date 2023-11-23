@@ -27,7 +27,7 @@ const getInfo = new Promise((resolve, reject) => {
     const { type, action, data } = event.data ?? {};
     if (type === 'FROM_EMBED' && action === 'GET_INFO' && data) {
       event.stopPropagation();
-      window.removeEventListener('click', listener);
+      window.removeEventListener('message', listener);
       resolve(data);
     }
   }
